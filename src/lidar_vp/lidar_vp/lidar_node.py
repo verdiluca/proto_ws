@@ -126,11 +126,11 @@ class timer:
 
     def elapsed(self):
         self.t_trascorso = (time.time() - self.t_avvio)
-        if self.t_trascorso >= self.preset : 
+        if self.t_trascorso >= self.preset :
             return True
         else :
             return False
-        
+
 
 T1 = timer() # TIMER CONTROLLO SENSORI PARTENZA
 T2 = timer() # TIMER STERZO DX 135 GRADI
@@ -138,11 +138,8 @@ T3 = timer() # TIMER STERZO SX 135 GRADI
 T4 = timer() # TIMER STERZO DISINCASTRO SX 45 GRADI
 T5 = timer() # TIMER STERZO DISINCASTRO DX 45 GRADI
 
-#define _takeTime(timer) timer = millis()
-#define _tempoTrascorso(timer) (millis()-timer)
-
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-#---------------------------------------------------------INIZIO CLASSE------------------------------------------------------------------------------------------------#
+#---------------------------------------------------------INIZIO-CLASSE------------------------------------------------------------------------------------------------#
 
 
 class LidarNode(Node):
@@ -155,48 +152,47 @@ class LidarNode(Node):
 
         self.subscription = self.create_subscription(
             LaserScan, 'scan', self.listener_callback, QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT))
-        
+
         self.test = self.create_subscription(
             String, 'serial_comm', self.test_callback, 50)
-        
+
         self.chiave = self.create_subscription(
             Int32, 'chiave_start', self.chiave_callback, 50)
-        
 
-        
+
+
         # self.sac_sub = self.create_subscription(
         #    String, '/SAC', self.sac_callback, 50)
-        
+
         # self.sad_sub = self.create_subscription(
         #    String, '/SAD', self.sad_callback, 50)
-        
+
         # self.sas_sub = self.create_subscription(
         #    String, '/SAS', self.sas_callback, 50)
-        
+
         # self.scs_sub = self.create_subscription(
         #    String, '/SCS', self.scs_callback, 50)
-        
+
         # self.scc_sub = self.create_subscription(
         #    String, '/SCC', self.scc_callback, 50)
-        
+
         # self.scd_sub = self.create_subscription(
         #    String, '/SCD', self.scd_callback, 50)
-        
+
         # self.sbs_sub = self.create_subscription(
         #    String, '/SBS', self.sbs_callback, 50)
-        
+
         # self.sbc_sub = self.create_subscription(
         #    String, '/SBC', self.sbc_callback, 50)
-        
+
         # self.sbd_sub = self.create_subscription(
         #    String, '/SBD', self.sbd_callback, 50)
-        
-        # self.chiave_sub = self.create_subscription(
-        #    String, '/statochiave', self.chiave_callback, 50)
+
+        #----------------------#PUBLISHER LIDAR#----------------------#
 
         self.vel_pub = self.create_publisher(
             Twist, '/cmd_vel', 50)
-        
+
         self.nord_pub = self.create_publisher(
             Float32, 'nord', 50)
         self.nordest_pub = self.create_publisher(
@@ -207,6 +203,42 @@ class LidarNode(Node):
             Float32, 'ovest', 50)
         self.est_pub = self.create_publisher(
             Float32, 'est', 50)
+
+        #----------------------#PUBLISHER DEBUG#----------------------#
+
+        self.logica_proto_pub = self.create_publisher(
+            Int32, 'logica_proto', 50)
+
+        self.logica_azzera_variabili_pub = self.create_publisher(
+            Int32, 'logica_azzera_variabili', 50)
+
+        self.logica_controllo_sensori_partenza_pub = self.create_publisher(
+            Int32, 'logica_controllo_sensori_partenza', 50)
+
+        self.logica_proto_avanti_pub = self.create_publisher(
+            Int32, 'logica_proto_avanti', 50)
+
+        self.logica_sterzo_dx_pub = self.create_publisher(
+            Int32, 'logica_sterzo_dx', 50)
+
+        self.logica_sterzo_sx_pub = self.create_publisher(
+            Int32, 'logica_sterzo_sx', 50)
+
+        self.logica_sterzo_av_pub = self.create_publisher(
+            Int32, 'logica_sterzo_av', 50)
+
+        self.logica_arresto_proto_pub = self.create_publisher(
+            Int32, 'logica_arresto_proto', 50)
+
+        self.logica_sterzo_disincastro_pub = self.create_publisher(
+            Int32, 'logica_sterzo_disincastro', 50)
+
+        self.logica_sterzo_disincastro_SX_pub = self.create_publisher(
+            Int32, 'logica_sterzo_disincastro_SX', 50)
+
+        self.logica_sterzo_disincastro_DX_pub = self.create_publisher(
+            Int32, 'logica_sterzo_disincastro_DX', 50)
+
 
 #--------------------------------------------------------------------AVVIO_VOID---------------------------------------------------------------------------#
 
@@ -245,10 +277,10 @@ class LidarNode(Node):
 
         timer_period13 = 0.157
         self.timer13 = self.create_timer(timer_period13, self.Logica_Sterzo_Disincastro_DX)
-      
+
 #---------------------------------------------------------------------------------------------------------------------------------------------------------#
 #----------------------------------------------------------------------RICHIAMO_VARIABILI-----------------------------------------------------------------#
-        
+
     def test_callback(self, msg):
 
         global test_1
@@ -277,42 +309,23 @@ class LidarNode(Node):
         ao =  Float32()
         ae =  Float32()
 
-        # an.data = msg.ranges[240]
-        # ano.data = msg.ranges[285]
-        # ane.data = msg.ranges[195]
-        # ao.data = msg.ranges[331]
-        # ae.data = msg.ranges[149]
+        an.data = msg.ranges[0]
+        ano.data = msg.ranges[200]
+        ane.data = msg.ranges[-200]
+        ao.data = msg.ranges[400]
+        ae.data = msg.ranges[-400]
+
         # dist_back = format(msg.ranges[240], '.3g')
         # dist_left = format(msg.ranges[90], '.2f')
         # dist_right = format(msg.ranges[270], '.2f')
         # dist_head = format(msg.ranges[0], '.2f')
         # self.get_logger().info(f'{dist_back} {dist_left} {dist_right} {dist_head}')
-        
+
         n = Float32()
         e = Float32()
         o = Float32()
         no = Float32()
         ne = Float32()
-
-        n1 = Float32()
-        n2 = Float32()
-        n3 = Float32()
-
-        ne1 = Float32()
-        ne2 = Float32()
-        ne3 = Float32()
-
-        no1 = Float32()
-        no2 = Float32()
-        no3 = Float32()
-
-        e1 = Float32()
-        e2 = Float32()
-        e3 = Float32()
-
-        o1 = Float32()
-        o2 = Float32()
-        o3 = Float32()
 
         n = float(format(msg.ranges[0] , '.2f'))
         no = float(format(msg.ranges[200] , '.2f'))
@@ -320,53 +333,30 @@ class LidarNode(Node):
         e = float(format(msg.ranges[-400] , '.2f'))
         o = float(format(msg.ranges[400] , '.2f'))
 
-        # if n == 0:
-        #     n = 12.0
-        # if ne == 0:
-        #     ne = 12.0
-        # if no == 0:
-        #     no = 12.0
-        # if e == 0:
-        #     e = 12.0
-        # if o == 0:
-        #     o = 12.0
-
-        # n1 = msg.ranges[240]
-        # n2 = msg.ranges[239]
-        # n3 = msg.ranges[241]
-
-        # e1 = msg.ranges[159]
-        # e2 = msg.ranges[160]
-        # e3 = msg.ranges[161]
-
-        # o1 = msg.ranges[330]
-        # o2 = msg.ranges[331]
-        # o3 = msg.ranges[332]
-
-        # ne1 = msg.ranges[194]
-        # ne2 = msg.ranges[195]
-        # ne3 = msg.ranges[196]
-
-        # no1 = msg.ranges[284]
-        # no2 = msg.ranges[285]
-        # no3 = msg.ranges[286]
 
 
-        # n = float(format(((n1 + n2 + n3) /3) , '.2f'))  
-        # ne = float(format(((ne1 + ne2 + ne3) /3) , '.2f'))
-        # no = float(format(((no1 + no2 + no3) /3) , '.2f'))
-        # o = float(format(((o1 + o2 + o3) /3) , '.2f'))        
-        # e = float(format(((e1 + e2 + e3) /3) , '.2f'))
+        Media_E = (e+ne)/2
+        Media_O = (no+o)/2
 
-        # Media_E = (e+ne)/2
-        # Media_O = (no+o)/2
 
-        
         self.nord_pub.publish(an)
         self.nordest_pub.publish(ane)
         self.nordovest_pub.publish(ano)
         self.ovest_pub.publish(ao)
         self.est_pub.publish(ae)
+
+
+        self.logica_proto_pub.publish(logica_proto)
+        self.logica_azzera_variabili_pub.publish(logica_azzera_variabili)
+        self.logica_controllo_sensori_partenza_pub.publish(logica_controllo_sensori_partenza)
+        self.logica_proto_avanti_pub.publish(logica_proto_avanti)
+        self.logica_sterzo_dx_pub.publish(logica_sterzo_dx)
+        self.logica_sterzo_sx_pub.publish(logica_sterzo_sx)
+        self.logica_sterzo_av_pub.publish(logica_sterzo_av)
+        self.logica_arresto_proto_pub.publish(logica_arresto_proto)
+        self.logica_sterzo_disincastro_pub.publish(logica_sterzo_disincastro)
+        self.logica_sterzo_disincastro_SX_pub.publish(logica_sterzo_disincastro_SX)
+        self.logica_sterzo_disincastro_DX_pub.publish(logica_sterzo_disincastro_DX)
 
 
         print("NORD:", n)
@@ -395,7 +385,7 @@ class LidarNode(Node):
 #-------------------------------------------------------------------ASSEGNA_USCITE-----------------------------------------------------------------------------#
 
     def Assegna_Uscite(self):
-        
+
         #MOTORI
         global Motori_avanti
         global Motori_destra
@@ -442,17 +432,17 @@ class LidarNode(Node):
         Motori_destra = Twist(linear=Vector3(x=0.0, y=0.0, z=0.0), angular=Vector3(x=0.0, y=0.0, z=-0.5))
         Motori_sinistra = Twist(linear=Vector3(x=0.0, y=0.0, z=0.0), angular=Vector3(x=0.0, y=0.0, z=0.5))
         Motori_fermo = Twist(linear=Vector3(x=0.0, y=0.0, z=0.0), angular=Vector3(x=0.0, y=0.0, z=0.0))
-         
+
         #self.vel_pub.publish(Motori_avanti)
         # geometry_msgs.msg.Twist(linear=geometry_msgs.msg.Vector3(x=0.0, y=0.0, z=0.0), angular=geometry_msgs.msg.Vector3(x=0.0, y=0.0, z=0.0))
-        
+
         # USCITE LOGICA PROTO
         if logica_proto == 1:
             self.vel_pub.publish(Motori_fermo)
 
         # USCITE LOGICA AZZERA VARIABILI
         if logica_azzera_variabili == 2:
-            
+
             logica_controllo_sensori_partenza = 1
             logica_proto_avanti = 1
             logica_sterzo_dx = 1
@@ -495,7 +485,7 @@ class LidarNode(Node):
             Timer_T1_avviato = False
             if (T1.elapsed() == True) :
                  Timer_T1_concluso = True
-        
+
         # USCITE LOGICA PROTO AVANTI
         if logica_proto_avanti == 1:
             motori_avviati = False
@@ -519,12 +509,12 @@ class LidarNode(Node):
                 T2.start()
                 Timer_T2_sterzo_iniziato = True
                 Sterzo_DX_finito = False
-            
+
             if Timer_T2_sterzo_iniziato == True:
                 if (T2.elapsed() == True):
                     self.vel_pub.publish(Motori_fermo)
                     Sterzo_DX_finito = True
-        
+
         if logica_sterzo_dx == 3:
             Timer_T2_sterzo_iniziato = False
             Sterzo_DX_finito = False
@@ -541,12 +531,12 @@ class LidarNode(Node):
                 T3.start()
                 Timer_T3_sterzo_iniziato = True
                 Sterzo_SX_finito = False
-            
+
             if Timer_T3_sterzo_iniziato == True:
                 if (T3.elapsed() == True):
                     self.vel_pub.publish(Motori_fermo)
                     Sterzo_SX_finito = True
-        
+
         if logica_sterzo_sx == 3:
             Timer_T3_sterzo_iniziato = False
             Sterzo_SX_finito = False
@@ -571,12 +561,12 @@ class LidarNode(Node):
                 T4.start()
                 Timer_T4_sterzo_iniziato = True
                 Sterzo_disincastro_SX_finito = False
-            
+
             if Timer_T4_sterzo_iniziato == True:
                 if (T4.elapsed() == True):
                     self.vel_pub.publish(Motori_fermo)
                     Sterzo_disincastro_SX_finito = True
-        
+
         if logica_sterzo_disincastro_SX == 3:
             Timer_T4_sterzo_iniziato = False
             Sterzo_disincastro_SX_finito = False
@@ -593,12 +583,12 @@ class LidarNode(Node):
                 T5.start()
                 Timer_T5_sterzo_iniziato = True
                 Sterzo_disincastro_DX_finito = False
-            
+
             if Timer_T5_sterzo_iniziato == True:
                 if (T5.elapsed() == True):
                     self.vel_pub.publish(Motori_fermo)
                     Sterzo_disincastro_DX_finito = True
-        
+
         if logica_sterzo_disincastro_DX == 3:
             Timer_T5_sterzo_iniziato = False
             Sterzo_disincastro_DX_finito = False
@@ -637,7 +627,7 @@ class LidarNode(Node):
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------#
 #---------------------------------------------------------------------LOGICA_PROTO-----------------------------------------------------------------------------#
     def Logica_Proto(self):
-        
+
         global logica_proto
         global logica_azzera_variabili
         global logica_controllo_sensori_partenza
@@ -700,15 +690,15 @@ class LidarNode(Node):
 
         #if logica_proto == 5 and ne > dl_est and e > dl_est and ne > 0 and e > 0:
         #    logica_proto = 3
-        
+
         #if logica_proto == 6 and Media_O > Media_E:
         #    logica_proto = 7
         #elif logica_proto == 6 and Media_E > Media_O:
         #    logica_proto = 8
-        
+
         #if logica_proto == 7 and n < dl_nord and ne > dl_est and no > dl_ovest and e > 0.5 and o > dl_ovest:
         #    logica_proto = 3
-        
+
         #if logica_proto == 8 and n < dl_nord and ne > dl_est and no > dl_ovest and e > dl_est and o > dl_ovest:
         #    logica_proto = 3
 
@@ -716,14 +706,14 @@ class LidarNode(Node):
         #    logica_proto = 1
 
         #INIZIOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-            
-        if logica_proto == 1 and chiave == 1: 
+
+        if logica_proto == 1 and chiave == 1:
             logica_proto = 2
 
         if logica_proto == 2 and logica_azzera_variabili == 3:
-            logica_proto = 3 
+            logica_proto = 3
 
-        if logica_proto == 3 and logica_controllo_sensori_partenza == 4: 
+        if logica_proto == 3 and logica_controllo_sensori_partenza == 4:
             logica_proto = 4
 
         if logica_proto == 4 and n > dl_nord and ne > dl_est and no < dl_ovest and e > dl_est and o < dl_ovest:
@@ -785,7 +775,7 @@ class LidarNode(Node):
 
         # if logica_proto == 4 and (o < 0.35 or no < 0.35) and no > 0 and o > 0:
         #     logica_proto = 5
-        
+
         # elif logica_proto == 4 and (e < 0.35 or ne < 0.35) and ne > 0and e > 0:
         #     logica_proto = 6
 
@@ -798,20 +788,20 @@ class LidarNode(Node):
 
         # if logica_proto == 5 and logica_sterzo_dx == 3 and n > 0.35 and ne > 0.35 and no > 0.35 and e > 0.35:
         #     logica_proto = 4
-        
+
         # elif logica_proto == 5 and logica_sterzo_dx == 3 and (e < 0.35 or ne < 0.35) and ne > 0 and e > 0:
         #     logica_proto = 6
-        
+
         # elif logica_proto == 5 and logica_sterzo_dx == 3 and n < 0.35 and n > 0:
         #     logica_proto = 7
-        
+
 
         # if logica_proto == 6 and logica_sterzo_sx == 3 and n > 0.35 and ne > 0.35 and no > 0.35 and e > 0.35:
         #     logica_proto = 4
-        
+
         # elif logica_proto == 6 and logica_sterzo_sx == 3 and (no < 0.35) and no > 0:
         #     logica_proto = 5
-        
+
         # elif logica_proto == 6 and logica_sterzo_sx == 3 and n < 0.35 and n > 0:
         #     logica_proto = 7
 
@@ -828,15 +818,15 @@ class LidarNode(Node):
 
         # if Stop == True:
         #     logica_proto = 8
-        
+
         # #print(logica_proto)
-    
+
 
 # #--------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # #---------------------------------------------------------------------LOGICA_AZZERA_VARIABILI------------------------------------------------------------------#
 
     def Logica_Azzera_Variabili(self):
-        
+
         global logica_proto
         global logica_azzera_variabili
         global Azzeramento_completato
@@ -846,12 +836,12 @@ class LidarNode(Node):
 
         if logica_azzera_variabili == 2 and Azzeramento_completato == True:
             logica_azzera_variabili = 3
-        
+
         if logica_azzera_variabili == 3 and logica_proto == 3:
             Azzeramento_completato = False
             logica_azzera_variabili = 1
-        
-        if logica_proto == 1: 
+
+        if logica_proto == 1:
             logica_azzera_variabili = 1
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------#
@@ -893,7 +883,7 @@ class LidarNode(Node):
         if logica_controllo_sensori_partenza == 4 and logica_proto == 4:
             logica_controllo_sensori_partenza = 1
 
-        if logica_proto == 1: 
+        if logica_proto == 1:
             logica_controllo_sensori_partenza = 1
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------#
@@ -914,7 +904,7 @@ class LidarNode(Node):
         if logica_proto_avanti == 3 and (logica_proto == 5 or logica_proto == 6 or logica_proto == 7 or logica_proto == 8):
             logica_proto_avanti = 1
 
-        if logica_proto == 1: 
+        if logica_proto == 1:
             logica_proto_avanti = 1
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------#
@@ -953,7 +943,7 @@ class LidarNode(Node):
         if logica_sterzo_dx == 3 and (logica_proto == 4 or (logica_proto == 9 and logica_sterzo_disincastro == 2) or logica_proto == 8):
             logica_sterzo_dx = 1
 
-        if logica_proto == 1: 
+        if logica_proto == 1:
             logica_sterzo_dx = 1
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------#
@@ -992,7 +982,7 @@ class LidarNode(Node):
         if logica_sterzo_sx == 3 and (logica_proto == 4 or (logica_proto == 9 and logica_sterzo_disincastro == 3) or logica_proto == 8):
             logica_sterzo_sx = 1
 
-        if logica_proto == 1: 
+        if logica_proto == 1:
             logica_sterzo_sx = 1
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------#
@@ -1013,8 +1003,8 @@ class LidarNode(Node):
 
         if logica_sterzo_av == 3 and (logica_proto == 5 or logica_proto == 6 or logica_proto == 8):
             logica_sterzo_av = 1
-        
-        if logica_proto == 1: 
+
+        if logica_proto == 1:
             logica_sterzo_av = 1
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------#
@@ -1058,7 +1048,7 @@ class LidarNode(Node):
         if logica_sterzo_disincastro == 4 and (logica_proto == 4 or logica_proto == 8):
             logica_sterzo_disincastro = 1
 
-        if logica_proto == 1: 
+        if logica_proto == 1:
             logica_sterzo_disincastro = 1
 
 
@@ -1090,14 +1080,14 @@ class LidarNode(Node):
 
         if logica_sterzo_disincastro_SX == 2 and ne > dl_est and e > dl_est:
             logica_sterzo_disincastro_SX = 3
-        
+
         elif  logica_sterzo_disincastro_SX == 2 and ne < dl_est and e < dl_est:
             logica_sterzo_disincastro_SX = 1
 
         if logica_sterzo_disincastro_SX == 3 and logica_proto == 4:
             logica_sterzo_disincastro_SX = 1
 
-        if logica_proto == 1: 
+        if logica_proto == 1:
             logica_sterzo_disincastro_SX = 1
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------#
@@ -1128,14 +1118,14 @@ class LidarNode(Node):
 
         if logica_sterzo_disincastro_DX == 2 and no > dl_ovest and o > dl_ovest:
             logica_sterzo_disincastro_DX = 3
-        
+
         elif  logica_sterzo_disincastro_DX == 2 and no < dl_ovest and o < dl_ovest:
             logica_sterzo_disincastro_DX = 1
 
         if logica_sterzo_disincastro_DX == 3 and logica_proto == 4:
             logica_sterzo_disincastro_DX = 1
 
-        if logica_proto == 1: 
+        if logica_proto == 1:
             logica_sterzo_disincastro_DX = 1
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------#
@@ -1157,30 +1147,6 @@ class LidarNode(Node):
             logica_arresto_proto = 1
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------#
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
